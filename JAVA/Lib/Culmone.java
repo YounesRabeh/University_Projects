@@ -16,7 +16,7 @@ public final class Culmone {
         return rand.nextInt(origin,  bound + 1);
     }
 
-    /**Fuse  */
+    /**Fuse <b>2 int Arrays</b>*/
 
     public static int[] arrayFusion(int[] a, int[] b) {
         int result = 0;
