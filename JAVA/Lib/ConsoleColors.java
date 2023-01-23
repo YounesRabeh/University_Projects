@@ -75,22 +75,4 @@ public class ConsoleColors {
     public static final String PURPLE_BACKGROUND_BRIGHT = "\033[0;105m"; // PURPLE
     public static final String CYAN_BACKGROUND_BRIGHT = "\033[0;106m";  // CYAN
     public static final String WHITE_BACKGROUND_BRIGHT = "\033[0;107m";   // WHITE
-
-    /*
-    private static final String[] colors = {RED_BOLD, YELLOW_BOLD, GREEN_BOLD, CYAN_BOLD, PURPLE_BOLD, WHITE_BOLD_BRIGHT,
-            BLUE_BOLD, YELLOW_BOLD_BRIGHT, PURPLE_BOLD_BRIGHT};
-
-
-    public static void printGayText(String text){
-        int x = text.length();
-        int colorIndex = 0;
-        char[] characters = text.toCharArray();
-        System.out.print("\n");
-        for (int i = 0; i < x; i++){
-            if (colorIndex >= colors.length){colorIndex = 0;}
-            System.out.print(colors[colorIndex] + characters[i]);
-            colorIndex++;
-        }
-        System.out.print("\n");
-    }*/
 }
