@@ -16,8 +16,8 @@ public final class Culmone {
         return rand.nextInt(origin,  bound + 1);
     }
 
-    /**Fuse <b>2 int Arrays</b>*/
-
+    /**Fuse <b>2 int Arrays</b>
+    */
     public static int[] arrayFusion(int[] a, int[] b) {
         int result = 0;
         int _a = a.length; int _b = b.length;
@@ -29,7 +29,8 @@ public final class Culmone {
 
     /**Calculate the factorial <b>n!</b>
      * @param n the number (int)
-     * @return the factorial of n*/
+     * @return the factorial of n
+     */
     public static int factorial(int n){
         if (n<0){
             throw new RuntimeException(RED_BOLD + "[!!]-NEGATIVE PARAMETER" + RESET);
@@ -39,7 +40,8 @@ public final class Culmone {
     }
 
     /**Calculate the <b>Binomial Coefficient</b> (n k)
-     * @return the Binomial Coefficient*/
+     * @return the Binomial Coefficient
+     */
     public static int binomialCoefficient(int n, int k){
         if (n < k){
             throw new RuntimeException(RED_BOLD + "[!!]-n IS SMALLER THAN k" + RESET);
@@ -49,7 +51,8 @@ public final class Culmone {
     }
 
     /**Calculate the <b>fibonacci series</b> of a given number
-     * @param k the parameter of the fibonacci series*/
+     * @param k the parameter of the fibonacci series
+     */
     public static long fibonacci(long k){
         long n = 1; long m = 0;
         while (k > 0){
@@ -93,7 +96,8 @@ public final class Culmone {
      * <p>int[][] _name_ = {row 1{column1, column2, ...}, row2{column1, column2, ...}, ...}</p>
      * @param A the FIRST matrix
      * @param B the Second matrix
-     * @return The matrix AB [A x B]*/
+     * @return The matrix AB [A x B]
+     */
     public static int[][] matrixMultiplication(int[][] A, int[][] B){
         int lines = A.length;
         int columns = B[0].length;
