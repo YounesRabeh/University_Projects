@@ -39,17 +39,6 @@ public final class Culmone {
         }
     }
 
-    /**Calculate the <b>Binomial Coefficient</b> (n k)
-     * @return the Binomial Coefficient
-     */
-    public static int binomialCoefficient(int n, int k){
-        if (n < k){
-            throw new RuntimeException(RED_BOLD + "[!!]-n IS SMALLER THAN k" + RESET);
-        } else {
-            return factorial(n) / (factorial(k) * factorial(n - k));
-        }
-    }
-
     /**Calculate the <b>fibonacci series</b> of a given number
      * @param k the parameter of the fibonacci series
      */
