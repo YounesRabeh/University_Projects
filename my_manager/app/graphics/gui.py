@@ -1,8 +1,9 @@
 import tkinter as tk
 from tkinter import ttk
-from resources.images_set_up import play_button_icon_abs_path as play_btn_path,\
+from app.resources.images_set_up import play_button_icon_abs_path as play_btn_path,\
     pause_button_icon_abs_path as pause_btn_path, reset_button_icon_abs_path as reset_btn_path
 from PIL import ImageTk, Image
+import time
 
 # Default values FHD:
 WINDOW_WIDTH = 1066
@@ -86,8 +87,10 @@ class TkinterApp(tk.Tk):
 class TimerPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
-        self.seconds = 0
-        self.is_running = False
+        self.hours, self.minutes, self.seconds = 0, 0, 0
+        self.total_elapsed_time = 0
+        self.last_start_time = None
+        self.paused = False
         ###############################
 
         self.color = 'YELLOW'
@@ -95,14 +98,13 @@ class TimerPage(tk.Frame):
         # UI:
         self.time_label = ttk.Label(self, text="00:00:00", background=self.color,
                                     font=("Arial", int(150*SCALE_FACTOR)))
-        self.start_button = tk.Button(self, text="START", command=lambda: start_timer(), bg=self.color, fg=self.color,
+        self.start_button = tk.Button(self, text="START", command=lambda: start_pause(), bg=self.color, fg=self.color,
                                       activebackground=self.color, highlightcolor=self.color, bd=0,
                                       image=controller.play_button_icon, highlightthickness=0)
-        self.reset_button = tk.Button(self, text="RESET", command=lambda: reset_timer(),bg=self.color, fg=self.color,
+        self.reset_button = tk.Button(self, text="RESET", command=lambda: reset(), bg=self.color, fg=self.color,
                                       activebackground=self.color, highlightcolor=self.color, bd=0,
                                       image=controller.reset_button_icon, highlightthickness=0)
 
-        print(controller.data)
         # UI LAYOUT:
         self.time_label.place(x=int(WINDOW_WIDTH/2*SCALE_FACTOR), y=int(WINDOW_HEIGHT/3*SCALE_FACTOR),
                               anchor='center')
@@ -112,33 +114,39 @@ class TimerPage(tk.Frame):
                                 anchor='center')
 
         # OWN METHODS:
-        def start_timer():
-            self.is_running = True
-            self.start_button.config(command=pause_timer, image=controller.pause_button_icon)
-            update_clock()
-
-        def pause_timer():
-            self.is_running = False
-            print(controller.play_button_icon)
-            self.start_button.config(command=start_timer, image=controller.play_button_icon)
-
-        def reset_timer():
-            self.seconds = 0
-            self.is_running = False
-            self.start_button.config(command=start_timer, image=controller.play_button_icon)
-            self.time_label.config(text="00:00:00")
-
-        def update_clock():
-            if self.is_running:
-                self.seconds += 1
-                hours = self.seconds // 3600
-                minutes = (self.seconds % 3600) // 60
-                secs = self.seconds % 60
-                time_string = "{:02d}:{:02d}:{:02d}".format(hours, minutes, secs)
+        def tick():
+            if self.last_start_time is not None and not self.paused:
+                current_elapsed_time = round(time.time() - self.last_start_time) + self.total_elapsed_time
+                self.seconds = current_elapsed_time % 60
+                self.minutes = (current_elapsed_time // 60) % 60
+                self.hours = current_elapsed_time // 3600
+                time_string = f"{self.hours:02d}:{self.minutes:02d}:{self.seconds:02d}"
                 self.time_label.config(text=time_string)
-                if self.seconds == 0:
-                    return
-                controller.after(1000, update_clock)  # call update_clock again after 1000 ms
+            self.master.after(1000, tick)
+
+        def start_pause():
+            if self.last_start_time is None:
+                self.last_start_time = time.time()
+                tick()
+                self.start_button.config(image=controller.pause_button_icon)
+            elif not self.paused:
+                self.total_elapsed_time += round(time.time() - self.last_start_time)
+                self.paused = True
+                self.start_button.config(image=controller.play_button_icon)
+            else:
+                self.last_start_time = time.time()
+                self.paused = False
+                self.start_button.config(image=controller.pause_button_icon)
+
+        def reset():
+            self.hours = 0
+            self.minutes = 0
+            self.seconds = 0
+            self.total_elapsed_time = 0
+            self.paused = False
+            self.start_button.config(image=controller.play_button_icon)
+            self.time_label.config(text="00:00:00")
+            self.last_start_time = None
 
 
 class CountdownPage(tk.Frame):
