@@ -128,15 +128,15 @@ class TimerPage(tk.Frame):
             if self.last_start_time is None:
                 self.last_start_time = time.time()
                 tick()
-                self.start_button.config(text="Pause")
+                self.start_button.config(image=controller.pause_button_icon)
             elif not self.paused:
                 self.total_elapsed_time += round(time.time() - self.last_start_time)
                 self.paused = True
-                self.start_button.config(text="Resume")
+                self.start_button.config(image=controller.play_button_icon)
             else:
                 self.last_start_time = time.time()
                 self.paused = False
-                self.start_button.config(text="Pause")
+                self.start_button.config(image=controller.pause_button_icon)
 
         def reset():
             self.hours, self.minutes, self.seconds, self.total_elapsed_time = 0, 0, 0, 0
