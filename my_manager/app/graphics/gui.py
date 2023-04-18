@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
-from app.resources.images_set_up import play_button_icon_abs_path as play_btn_path,\
+from app.resources.images_set_up import play_button_icon_abs_path as play_btn_path, \
     pause_button_icon_abs_path as pause_btn_path, reset_button_icon_abs_path as reset_btn_path
 from PIL import ImageTk, Image
 import time
@@ -9,6 +9,7 @@ import time
 WINDOW_WIDTH = 1066
 WINDOW_HEIGHT = 600
 SCALE_FACTOR = 1
+
 
 class TkinterApp(tk.Tk):
     def __init__(self, *args, **kwargs):
@@ -47,7 +48,7 @@ class TkinterApp(tk.Tk):
         # Images:
         icon_size = int(100 * SCALE_FACTOR)
         self.play_button_icon = ImageTk.PhotoImage((Image.open(play_btn_path)).resize((icon_size, icon_size)))
-        self.pause_button_icon = ImageTk.PhotoImage((Image.open(pause_btn_path)).resize((icon_size+9, icon_size+9)))
+        self.pause_button_icon = ImageTk.PhotoImage((Image.open(pause_btn_path)).resize((icon_size + 9, icon_size + 9)))
         self.reset_button_icon = ImageTk.PhotoImage(Image.open(reset_btn_path).resize((icon_size, icon_size)))
 
         # Menu(toolbar):
@@ -69,7 +70,7 @@ class TkinterApp(tk.Tk):
             # initializing frame of that object from, TimerPage respectively with the for loop
             self.frames[F] = frame
             frame.grid(row=0, column=0, sticky="nsew")
-        self.show_frame(TimerPage)
+        self.show_frame(CountdownPage)
 
     def scale_factor(self):
         # TODO: make a function that returns the correct scale factor for every screen size
@@ -97,20 +98,20 @@ class TimerPage(tk.Frame):
         tk.Frame.configure(self, bg=self.color)
         # UI:
         self.time_label = ttk.Label(self, text="00:00:00", background=self.color,
-                                    font=("Arial", int(150*SCALE_FACTOR)))
-        self.start_button = tk.Button(self, text="START", command=lambda: start_pause(), bg=self.color, fg=self.color,
+                                    font=("Arial", int(150 * SCALE_FACTOR)))
+        self.start_button = tk.Button(self, command=lambda: start_pause(), bg=self.color, fg=self.color,
                                       activebackground=self.color, highlightcolor=self.color, bd=0,
                                       image=controller.play_button_icon, highlightthickness=0)
-        self.reset_button = tk.Button(self, text="RESET", command=lambda: reset(), bg=self.color, fg=self.color,
+        self.reset_button = tk.Button(self, command=lambda: reset(), bg=self.color, fg=self.color,
                                       activebackground=self.color, highlightcolor=self.color, bd=0,
                                       image=controller.reset_button_icon, highlightthickness=0)
 
         # UI LAYOUT:
-        self.time_label.place(x=int(WINDOW_WIDTH/2*SCALE_FACTOR), y=int(WINDOW_HEIGHT/3*SCALE_FACTOR),
+        self.time_label.place(x=int(WINDOW_WIDTH / 2 * SCALE_FACTOR), y=int(WINDOW_HEIGHT / 3 * SCALE_FACTOR),
                               anchor='center')
-        self.start_button.place(x=int(WINDOW_WIDTH/2.8*SCALE_FACTOR), y=int(WINDOW_HEIGHT/1.3*SCALE_FACTOR),
+        self.start_button.place(x=int(WINDOW_WIDTH / 2.8 * SCALE_FACTOR), y=int(WINDOW_HEIGHT / 1.3 * SCALE_FACTOR),
                                 anchor='center')
-        self.reset_button.place(x=int(WINDOW_WIDTH/1.7*SCALE_FACTOR), y=int(WINDOW_HEIGHT/1.3*SCALE_FACTOR),
+        self.reset_button.place(x=int(WINDOW_WIDTH / 1.7 * SCALE_FACTOR), y=int(WINDOW_HEIGHT / 1.3 * SCALE_FACTOR),
                                 anchor='center')
 
         # OWN METHODS:
@@ -149,25 +150,128 @@ class TimerPage(tk.Frame):
 class CountdownPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
+        self.hours, self.minutes, self.seconds = 0, 0, 0
+        self.current_time, self.total_time = 0, 0
+        self.is_running = False
+        self.input_seconds = tk.StringVar()
+        self.input_minutes = tk.StringVar()
+        self.input_hours = tk.StringVar()
+        self.one_to_sixty = []
+        self.one_to_twenty_four = []
+        for x in range(60):
+            if x < 10:
+                self.one_to_sixty.append("0" + str(x))
+            else:
+                self.one_to_sixty.append(x)
+        for x in range(24):
+            if x < 10:
+                self.one_to_twenty_four.append("0" + str(x))
+            else:
+                self.one_to_twenty_four.append(x)
+        self.last_start_time = None
+        self.pause_start_time = None
+        self.total_elapsed_time = 0
         ###############################
         self.color = 'RED'
 
         tk.Frame.configure(self, bg=self.color)
         # UI:
         self.time_label = ttk.Label(self, text="00:00:00", background=self.color,
-                                    font=("Arial", int(150*SCALE_FACTOR)))
-        self.start_button = tk.Button(self, text="START", command=lambda: ...,
-                                      width=int(15*SCALE_FACTOR), height=int(6*SCALE_FACTOR))
-        self.reset_button = tk.Button(self, text="RESET", command=lambda: ...,
-                                      width=int(15*SCALE_FACTOR), height=int(6*SCALE_FACTOR))
+                                    font=("Arial", int(150 * SCALE_FACTOR)))
+        self.start_button = tk.Button(self, command=lambda: start_pause(), bg=self.color, fg=self.color,
+                                      activebackground=self.color, highlightcolor=self.color, bd=0,
+                                      image=controller.play_button_icon, highlightthickness=0)
+        self.reset_button = tk.Button(self, command=lambda: reset(), bg=self.color, fg=self.color,
+                                      activebackground=self.color, highlightcolor=self.color, bd=0,
+                                      image=controller.reset_button_icon, highlightthickness=0)
+        self.text_label = tk.Label(self, text="To change the starting time, RESET then choose",
+                                   font='Helvetica 12', bg=self.color, fg='white')
+
+        self.style = ttk.Style()
+        self.style.theme_create('combo_style', parent='alt',
+                                settings={'TCombobox':
+                                              {'configure':
+                                                   {'selectbackground': 'black',
+                                                    'fieldbackground': 'white',
+                                                    'background': 'white',
+                                                    }}})
+        self.style.theme_use('combo_style')
+        self.seconds_combobox = ttk.Combobox(self, textvariable=self.input_seconds, state='readonly',
+                                             values=self.one_to_sixty, font='Helvetica 30 bold', width=2)
+        self.minutes_combobox = ttk.Combobox(self, textvariable=self.input_minutes, state='readonly',
+                                             values=self.one_to_sixty, font='Helvetica 30 bold', width=2)
+        self.hour_combobox = ttk.Combobox(self, textvariable=self.input_hours, state='readonly',
+                                          values=self.one_to_twenty_four, font='Helvetica 30 bold', width=2)
+        self.seconds_combobox.current(0)
+        self.minutes_combobox.current(0)
+        self.hour_combobox.current(0)
 
         # UI LAYOUT:
-        self.time_label.place(x=int(WINDOW_WIDTH/2*SCALE_FACTOR), y=int(WINDOW_HEIGHT/3*SCALE_FACTOR),
-                             anchor='center')
-        self.start_button.place(x=int(WINDOW_WIDTH/2.8*SCALE_FACTOR), y=int(WINDOW_HEIGHT/1.3*SCALE_FACTOR),
+        self.time_label.place(x=int(WINDOW_WIDTH / 2 * SCALE_FACTOR), y=int(WINDOW_HEIGHT / 3 * SCALE_FACTOR),
+                              anchor='center')
+        self.start_button.place(x=int(WINDOW_WIDTH / 2.8 * SCALE_FACTOR), y=int(WINDOW_HEIGHT / 1.3 * SCALE_FACTOR),
                                 anchor='center')
-        self.reset_button.place(x=int(WINDOW_WIDTH/1.7*SCALE_FACTOR), y=int(WINDOW_HEIGHT/1.3*SCALE_FACTOR),
+        self.reset_button.place(x=int(WINDOW_WIDTH / 1.7 * SCALE_FACTOR), y=int(WINDOW_HEIGHT / 1.3 * SCALE_FACTOR),
                                 anchor='center')
+        self.seconds_combobox.place(x=int(WINDOW_WIDTH / 1.2 * SCALE_FACTOR), y=int(WINDOW_HEIGHT / 9 * SCALE_FACTOR),
+                                    anchor='center')
+        self.minutes_combobox.place(x=int(WINDOW_WIDTH / 2 * SCALE_FACTOR), y=int(WINDOW_HEIGHT / 9 * SCALE_FACTOR),
+                                    anchor='center')
+        self.hour_combobox.place(x=int(WINDOW_WIDTH / 5.7 * SCALE_FACTOR), y=int(WINDOW_HEIGHT / 9 * SCALE_FACTOR),
+                                 anchor='center')
+        self.text_label.place(x=int(WINDOW_WIDTH / 1.27 * SCALE_FACTOR), y=int(WINDOW_HEIGHT / 1.05 * SCALE_FACTOR),
+                                 anchor='center')
+
+        # OWN METHODS:
+        def get_time():
+            self.hours = int(self.hour_combobox.get())
+            self.minutes = int(self.minutes_combobox.get())
+            self.seconds = int(self.input_seconds.get())
+
+        self.x = 0
+
+        def start_pause():
+            if (self.current_time == 0) or self.x == 0:
+                get_time()
+
+                self.total_time = self.hours * 3600 + self.minutes * 60 + self.seconds
+                self.current_time = self.total_time
+                time_string = f"{self.hours:02d}:{self.minutes:02d}:{self.seconds:02d}"
+                self.time_label.config(text=time_string)
+            self.x += 1
+            if not self.is_running:
+                self.is_running = True
+                self.start_button.config(image=controller.pause_button_icon)
+                self.last_start_time = time.time()
+                countdown()
+            else:
+                self.is_running = False
+                self.start_button.config(image=controller.play_button_icon)
+                self.total_elapsed_time += round(time.time() - self.last_start_time)
+
+        def countdown():
+            if self.is_running and self.current_time > 0:
+                self.current_time = self.total_time - round(
+                    time.time() - self.last_start_time) - self.total_elapsed_time
+                hours = self.current_time // 3600
+                minutes = (self.current_time // 60) % 60
+                seconds = self.current_time % 60
+                self.time_label.config(text='{:02d}:{:02d}:{:02d}'.format(hours, minutes, seconds))
+                self.master.after(100, countdown)
+            elif self.current_time <= 0:
+                self.time_label.config(text='00:00:00')
+                self.is_running = False
+                self.start_button.config(image=controller.play_button_icon)
+
+        def reset():
+            self.is_running = False
+            self.start_button.config(image=controller.play_button_icon)
+            self.current_time = self.total_time
+            self.time_label.config(text='{:02d}:{:02d}:{:02d}'.format(self.hours, self.minutes, self.seconds))
+            self.last_start_time = None
+            self.pause_start_time = None
+            self.total_elapsed_time = 0
+            self.x = 0
 
 
 class ToDoPage(tk.Frame):
@@ -179,6 +283,7 @@ class ToDoPage(tk.Frame):
         tk.Frame.configure(self, bg=self.color)
         label = ttk.Label(self, text="To-Do Page")
         label.grid(row=0, column=1, padx=10, pady=10)
+
 
 # Driver Code
 app = TkinterApp()
