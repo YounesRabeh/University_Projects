@@ -70,7 +70,7 @@ class TkinterApp(tk.Tk):
             # initializing frame of that object from, TimerPage respectively with the for loop
             self.frames[F] = frame
             frame.grid(row=0, column=0, sticky="nsew")
-        self.show_frame(CountdownPage)
+        self.show_frame(TimerPage)
 
     def scale_factor(self):
         # TODO: make a function that returns the correct scale factor for every screen size
