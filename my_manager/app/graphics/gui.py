@@ -107,7 +107,7 @@ class TimerPage(tk.Frame):
                                       image=controller.reset_button_icon, highlightthickness=0)
 
         # UI LAYOUT:
-        self.time_label.place(x=int(WINDOW_WIDTH / 2 * SCALE_FACTOR), y=int(WINDOW_HEIGHT / 3 * SCALE_FACTOR),
+        self.time_label.place(x=int(WINDOW_WIDTH / 2 * SCALE_FACTOR), y=int(WINDOW_HEIGHT / 2.5 * SCALE_FACTOR),
                               anchor='center')
         self.start_button.place(x=int(WINDOW_WIDTH / 2.8 * SCALE_FACTOR), y=int(WINDOW_HEIGHT / 1.3 * SCALE_FACTOR),
                                 anchor='center')
@@ -184,7 +184,7 @@ class CountdownPage(tk.Frame):
         self.reset_button = tk.Button(self, command=lambda: reset(), bg=self.color, fg=self.color,
                                       activebackground=self.color, highlightcolor=self.color, bd=0,
                                       image=controller.reset_button_icon, highlightthickness=0)
-        self.text_label = tk.Label(self, text="To change the starting time, RESET then choose",
+        self.text_label = tk.Label(self, text="To change the starting time, RESET to take effect",
                                    font='Helvetica 12', bg=self.color, fg='white')
 
         self.style = ttk.Style()
@@ -207,7 +207,7 @@ class CountdownPage(tk.Frame):
         self.hour_combobox.current(0)
 
         # UI LAYOUT:
-        self.time_label.place(x=int(WINDOW_WIDTH / 2 * SCALE_FACTOR), y=int(WINDOW_HEIGHT / 3 * SCALE_FACTOR),
+        self.time_label.place(x=int(WINDOW_WIDTH / 2 * SCALE_FACTOR), y=int(WINDOW_HEIGHT / 2.5 * SCALE_FACTOR),
                               anchor='center')
         self.start_button.place(x=int(WINDOW_WIDTH / 2.8 * SCALE_FACTOR), y=int(WINDOW_HEIGHT / 1.3 * SCALE_FACTOR),
                                 anchor='center')
@@ -229,7 +229,6 @@ class CountdownPage(tk.Frame):
             self.seconds = int(self.input_seconds.get())
 
         self.x = 0
-
         def start_pause():
             if (self.current_time == 0) or self.x == 0:
                 get_time()
@@ -264,6 +263,7 @@ class CountdownPage(tk.Frame):
                 self.start_button.config(image=controller.play_button_icon)
 
         def reset():
+            get_time()
             self.is_running = False
             self.start_button.config(image=controller.play_button_icon)
             self.current_time = self.total_time
