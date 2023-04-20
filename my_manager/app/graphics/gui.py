@@ -1,7 +1,9 @@
 import tkinter as tk
 from tkinter import ttk
 from app.resources.images_set_up import play_button_icon_abs_path as play_btn_path, \
-    pause_button_icon_abs_path as pause_btn_path, reset_button_icon_abs_path as reset_btn_path
+    pause_button_icon_abs_path as pause_btn_path, reset_button_icon_abs_path as reset_btn_path, \
+    logo_icon_abs_path as logo_icon_path
+
 from PIL import ImageTk, Image
 import time
 
@@ -40,16 +42,19 @@ class TkinterApp(tk.Tk):
             return str(WINDOW_WIDTH) + "x" + str(WINDOW_HEIGHT) + \
                 "+" + str(int(SCREEN_WIDTH / 4.8)) + "+" + str(int(SCREEN_HEIGHT / 3.8))
 
-        # Window Settings:
-        self.geometry(get_screen_size())
-        self.title("My Manager --test")
-        self.resizable(width=False, height=False)
-
         # Images:
         icon_size = int(100 * SCALE_FACTOR)
         self.play_button_icon = ImageTk.PhotoImage((Image.open(play_btn_path)).resize((icon_size, icon_size)))
         self.pause_button_icon = ImageTk.PhotoImage((Image.open(pause_btn_path)).resize((icon_size + 9, icon_size + 9)))
         self.reset_button_icon = ImageTk.PhotoImage(Image.open(reset_btn_path).resize((icon_size, icon_size)))
+        self.logo_icon = ImageTk.PhotoImage(Image.open(logo_icon_path).resize((250, 250)))
+
+        # Window Settings:
+        self.geometry(get_screen_size())
+        self.title("My Manager --test")
+        self.resizable(width=False, height=False)
+        self.wm_iconphoto(False, self.logo_icon)
+
 
         # Menu(toolbar):
         menubar = tk.Menu(self)
