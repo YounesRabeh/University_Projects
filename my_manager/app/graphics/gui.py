@@ -47,7 +47,7 @@ class TkinterApp(tk.Tk):
         self.play_button_icon = ImageTk.PhotoImage((Image.open(play_btn_path)).resize((icon_size, icon_size)))
         self.pause_button_icon = ImageTk.PhotoImage((Image.open(pause_btn_path)).resize((icon_size + 9, icon_size + 9)))
         self.reset_button_icon = ImageTk.PhotoImage(Image.open(reset_btn_path).resize((icon_size, icon_size)))
-        self.logo_icon = ImageTk.PhotoImage(Image.open(logo_icon_path).resize((250, 250)))
+        self.logo_icon = ImageTk.PhotoImage(Image.open(logo_icon_path))
 
         # Window Settings:
         self.geometry(get_screen_size())
