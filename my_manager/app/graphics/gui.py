@@ -98,8 +98,8 @@ class TimerPage(tk.Frame):
         self.last_start_time = None
         self.paused = False
         ###############################
+        self.color = '#13D45A'
 
-        self.color = 'YELLOW'
         tk.Frame.configure(self, bg=self.color)
         # UI:
         self.time_label = ttk.Label(self, text="00:00:00", background=self.color,
@@ -177,7 +177,9 @@ class CountdownPage(tk.Frame):
         self.pause_start_time = None
         self.total_elapsed_time = 0
         ###############################
-        self.color = 'RED'
+        self.color = '#DE2222'
+        self.color_2 = 'white'
+        self.color_3 = 'black'
 
         tk.Frame.configure(self, bg=self.color)
         # UI:
@@ -190,15 +192,15 @@ class CountdownPage(tk.Frame):
                                       activebackground=self.color, highlightcolor=self.color, bd=0,
                                       image=controller.reset_button_icon, highlightthickness=0)
         self.text_label = tk.Label(self, text="To change the starting time, RESET to take effect",
-                                   font='Helvetica 12', bg=self.color, fg='white')
+                                   font='Helvetica 12', bg=self.color, fg=self.color_2)
 
         self.style = ttk.Style()
         self.style.theme_create('combo_style', parent='alt',
                                 settings={'TCombobox':
                                               {'configure':
-                                                   {'selectbackground': 'black',
-                                                    'fieldbackground': 'white',
-                                                    'background': 'white',
+                                                   {'selectbackground': self.color_3,
+                                                    'fieldbackground': self.color_2,
+                                                    'background': self.color_2,
                                                     }}})
         self.style.theme_use('combo_style')
         self.seconds_combobox = ttk.Combobox(self, textvariable=self.input_seconds, state='readonly',
