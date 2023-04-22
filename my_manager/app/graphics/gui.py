@@ -6,6 +6,7 @@ from app.resources.images_set_up import play_button_icon_abs_path as play_btn_pa
 
 from PIL import ImageTk, Image
 import time
+from data.file_os_manager import notification_call
 
 # Default values FHD:
 WINDOW_WIDTH = 1066
@@ -55,7 +56,6 @@ class TkinterApp(tk.Tk):
         self.resizable(width=False, height=False)
         self.wm_iconphoto(False, self.logo_icon)
 
-
         # Menu(toolbar):
         menubar = tk.Menu(self)
         self.config(menu=menubar, relief='ridge')
@@ -75,7 +75,7 @@ class TkinterApp(tk.Tk):
             # initializing frame of that object from, TimerPage respectively with the for loop
             self.frames[F] = frame
             frame.grid(row=0, column=0, sticky="nsew")
-        self.show_frame(TimerPage)
+        self.show_frame(ToDoPage)
 
     def scale_factor(self):
         # TODO: make a function that returns the correct scale factor for every screen size
@@ -86,8 +86,6 @@ class TkinterApp(tk.Tk):
         frame = self.frames[cont]
         frame.tkraise()
 
-
-# METHODS:
 
 # PAGES:
 class TimerPage(tk.Frame):
@@ -227,7 +225,7 @@ class CountdownPage(tk.Frame):
         self.hour_combobox.place(x=int(WINDOW_WIDTH / 5.7 * SCALE_FACTOR), y=int(WINDOW_HEIGHT / 9 * SCALE_FACTOR),
                                  anchor='center')
         self.text_label.place(x=int(WINDOW_WIDTH / 1.27 * SCALE_FACTOR), y=int(WINDOW_HEIGHT / 1.05 * SCALE_FACTOR),
-                                 anchor='center')
+                              anchor='center')
 
         # OWN METHODS:
         def get_time():
@@ -236,6 +234,7 @@ class CountdownPage(tk.Frame):
             self.seconds = int(self.input_seconds.get())
 
         self.x = 0
+
         def start_pause():
             if (self.current_time == 0) or self.x == 0:
                 get_time()
@@ -268,6 +267,7 @@ class CountdownPage(tk.Frame):
                 self.time_label.config(text='00:00:00')
                 self.is_running = False
                 self.start_button.config(image=controller.play_button_icon)
+                notification_call("COUNTDOWN DONE !", "Go check the App")
 
         def reset():
             get_time()
@@ -288,8 +288,74 @@ class ToDoPage(tk.Frame):
         self.color = 'BLUE'
 
         tk.Frame.configure(self, bg=self.color)
-        label = ttk.Label(self, text="To-Do Page")
-        label.grid(row=0, column=1, padx=10, pady=10)
+        # UI:
+        checkbutton_list = ToDoPage.CheckbuttonList(self)
+        delete_button = ttk.Button(self, text='Delete Checked', command=checkbutton_list.delete_checked_checkbuttons)
+        print_button = ttk.Button(self, text='Print values', command=checkbutton_list.print_checkbutton_values)
+
+        # UI LAYOUT:
+        delete_button.pack(side=tk.RIGHT, padx=10, pady=10)
+        print_button.pack(side=tk.RIGHT, padx=10, pady=10)
+
+    class CheckbuttonFrame:
+        def __init__(self, parent, title, sub_label, frame_number):
+            self.parent = parent
+            self.var = tk.BooleanVar()
+            self.frame_number = frame_number
+            self.frame = ttk.Frame(parent, relief='solid', borderwidth=5,)
+            self.checkbutton = ttk.Checkbutton(self.frame, variable=self.var)
+            self.label = ttk.Label(self.frame, text=title)
+            self.sub_label = ttk.Label(self.frame, text=sub_label)
+            self.checkbutton.grid(row=0, column=0, sticky='nw', padx=8, pady=2)
+            self.label.grid(row=0, column=1, sticky='w')
+            self.sub_label.grid(row=1, column=1, sticky='w')
+
+        def draw(self):
+            self.frame.pack(padx=5, pady=5, fill=tk.BOTH)
+
+    class CheckbuttonList:
+        def __init__(self, parent):
+            self.parent = parent
+            self.scroll_frame = ttk.Frame(parent)
+            self.scroll_frame.pack(fill=tk.Y, expand=True, side=tk.LEFT, anchor="nw")
+            self.canvas = tk.Canvas(self.scroll_frame, bg='white')
+            self.canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, anchor="nw")
+            self.scrollbar = ttk.Scrollbar(self.scroll_frame, orient=tk.VERTICAL, command=self.canvas.yview)
+            self.scrollbar.pack(side=tk.RIGHT, fill=tk.Y, anchor="e")
+            self.canvas.configure(yscrollcommand=self.scrollbar.set)
+            self.inner_frame = ttk.Frame(self.canvas)
+            self.canvas.create_window((0, 0), window=self.inner_frame, anchor='nw')
+            self.checkbutton_frames = []
+            self.empty_default_space = " " * 80 + "\n\n"
+
+            for i in range(20):
+                checkbutton_frame = ToDoPage.CheckbuttonFrame(self.inner_frame, self.set_title() + str(i + 1),
+                                                              self.empty_default_space, i + 1)
+                self.checkbutton_frames.append(checkbutton_frame)
+            self.draw()
+
+        def draw(self):
+            for checkbutton_frame in self.checkbutton_frames:
+                checkbutton_frame.draw()
+            self.canvas.update_idletasks()
+            self.canvas.config(scrollregion=self.canvas.bbox('all'))
+
+        def delete_checked_checkbuttons(self):
+            new_frames = []
+            for checkbutton_frame in self.checkbutton_frames:
+                if not checkbutton_frame.var.get():
+                    new_frames.append(checkbutton_frame)
+                else:
+                    checkbutton_frame.frame.pack_forget()
+            self.checkbutton_frames = new_frames
+            self.draw()
+
+        def print_checkbutton_values(self):
+            for checkbutton_frame in self.checkbutton_frames:
+                print(f"Check button {checkbutton_frame.frame_number} value: {checkbutton_frame.var.get()}")
+
+        def set_title(self):
+            return "Title"
 
 
 # Driver Code
