@@ -307,7 +307,7 @@ class ToDoPage(tk.Frame):
         # UI:
         self.checkbutton_list = ToDoPage.CheckbuttonList(self)
         self.delete_button = ttk.Button(self, text='Delete Checked',
-                                        command=self.checkbutton_list.delete_checked_checkbuttons)
+                                        command=self.checkbutton_list.delete_checked_checkbutton())
         self.print_button = ttk.Button(self, text='Print values',
                                        command=self.checkbutton_list.print_checkbutton_values)
         self.task_name_entry = tk.Entry(self, width=26 * SCALE_FACTOR, font='Helvetica 20 bold')
@@ -343,19 +343,20 @@ class ToDoPage(tk.Frame):
                               anchor='center')
 
         def add_task():
-            task_name = self.task_name_entry.get()
-            task_description = self.task_description_entry.get('1.0', tk.END)
             importance_level = self.importance_level_input.get()
 
-            checkbutton_frame = ToDoPage.CheckbuttonFrame(self.checkbutton_list.inner_frame, get_title(), get_description(),
-                                                 ToDoPage.number_of_task + 1, 'RED')
+            checkbutton_frame = ToDoPage.CheckbuttonFrame(self.checkbutton_list.inner_frame, get_title(),
+                                                          get_description(), ToDoPage.number_of_task + 1, 'RED')
+
             checkbutton_frames.append(checkbutton_frame)
             checkbutton_frame.draw()
             ToDoPage.number_of_task += 1
             self.task_name_entry.delete(0, tk.END)
+            self.task_name_entry.insert(0, f"TaskName")
             self.task_description_entry.delete('1.0', tk.END)
+            self.checkbutton_list.draw()
 
-        def get_description():
+        """def get_description():
             my_text = self.task_description_entry.get('1.0', tk.END)
             text = my_text + ' ' * (240 - len(my_text))
             if len(text) > 240:
@@ -365,7 +366,7 @@ class ToDoPage(tk.Frame):
             new_text = ''
             count = 0
             for i, word in enumerate(words):
-                if count + len(word) >= 80:
+                if count + len(word) >= 41:
                     new_text += '\n' + word + ' '
                     count = len(word) + 1
                 else:
@@ -376,35 +377,59 @@ class ToDoPage(tk.Frame):
                 new_text += ' ' * (240 - len(new_text))
                 print(new_text)
             return new_text
+            
+            
+            
+            
+            """
 
         def get_title(every=50):
             return textwrap.fill(self.task_name_entry.get(), every)
+
+        def get_description():
+            my_text = textwrap.fill(self.task_description_entry.get('1.0', tk.END), 40)
+            return my_text
+
+
+
 
 
 
     class CheckbuttonFrame:
         def __init__(self, parent, title, sub_label, frame_number, importance):
             self.parent = parent
+            self.count = 0
             self.importance_level = importance
             self.var = tk.BooleanVar()
             self.frame_number = frame_number
             self.frame = tk.Frame(parent, relief='solid', borderwidth=5)
             self.checkbutton = ttk.Checkbutton(self.frame, variable=self.var)
             self.label = tk.Label(self.frame, text=title)
-            self.sub_label = tk.Label(self.frame, text=sub_label, bg='yellow')
-            self.importance_level_label = tk.Label(self.frame, text=" "*2, bg=self.importance_level)
+            self.sub_label = tk.Label(self.frame, text=sub_label)
+            self.importance_level_label = tk.Label(self.frame, text="    \n"*2, bg=self.importance_level)
 
             self.checkbutton.grid(row=0, column=0, sticky='nw', padx=8, pady=2)
-            self.importance_level_label.grid(row=0, column=1, sticky='ne')
+            self.importance_level_label.grid(row=1, column=0, sticky='nw')
             self.label.grid(row=0, column=1, sticky='w')
             self.sub_label.grid(row=1, column=1, sticky='w')
 
         def draw(self):
             self.frame.pack(padx=5, pady=5, fill=tk.BOTH)
 
+        def update(self):
+            self.count += 1
+            self.checkbutton.grid(row=0, column=0, sticky='nw', padx=8, pady=2)
+            self.importance_level_label.grid(row=0, column=1, sticky='ne')
+            self.label.grid(row=0, column=1, sticky='w')
+            self.sub_label.grid(row=1, column=1, sticky='w')
+
+            self.after(1000, self.update)
+
     class CheckbuttonList:
         def __init__(self, parent):
             global checkbutton_frames
+            self.count = 0
+
             self.parent = parent
             self.scroll_frame = ttk.Frame(parent)
             self.scroll_frame.pack(fill=tk.Y, expand=True, side=tk.LEFT, anchor="nw")
@@ -415,36 +440,47 @@ class ToDoPage(tk.Frame):
             self.canvas.configure(yscrollcommand=self.scrollbar.set)
             self.inner_frame = ttk.Frame(self.canvas)
             self.canvas.create_window((0, 0), window=self.inner_frame, anchor='nw')
-            self.checkbutton_frames = checkbutton_frames
 
             for i in range(ToDoPage.number_of_task):
                 checkbutton_frame = ToDoPage.CheckbuttonFrame(self.inner_frame, self.set_title() + str(i + 1),
                                                               ToDoPage.empty_default_space, i + 1, "RED")
-                self.checkbutton_frames.append(checkbutton_frame)
+                checkbutton_frames.append(checkbutton_frame)
             self.draw()
 
         def draw(self):
-            for checkbutton_frame in self.checkbutton_frames:
+            for checkbutton_frame in checkbutton_frames:
                 checkbutton_frame.draw()
             self.canvas.update_idletasks()
             self.canvas.config(scrollregion=self.canvas.bbox('all'))
 
-        def delete_checked_checkbuttons(self):
+        def delete_checked_checkbutton(self):
             new_frames = []
-            for checkbutton_frame in self.checkbutton_frames:
+            global checkbutton_frames
+            for checkbutton_frame in checkbutton_frames:
                 if not checkbutton_frame.var.get():
                     new_frames.append(checkbutton_frame)
                 else:
                     checkbutton_frame.frame.pack_forget()
-            self.checkbutton_frames = new_frames
+            checkbutton_frames = new_frames
             self.draw()
 
         def print_checkbutton_values(self):
-            for checkbutton_frame in self.checkbutton_frames:
+            for checkbutton_frame in checkbutton_frames:
                 print(f"Check button {checkbutton_frame.frame_number} value: {checkbutton_frame.var.get()}")
 
         def set_title(self):
             return "Title"
+
+        def update(self):
+            self.count += 1
+            self.canvas.configure(yscrollcommand=self.scrollbar.set)
+            self.canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, anchor="nw")
+            self.canvas.create_window((0, 0), window=self.inner_frame, anchor='nw')
+
+            self.scroll_frame.pack(fill=tk.Y, expand=True, side=tk.LEFT, anchor="nw")
+
+            self.after(1000, self.update)
+
 
 
 
