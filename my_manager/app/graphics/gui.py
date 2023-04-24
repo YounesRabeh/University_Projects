@@ -7,11 +7,15 @@ from app.resources.images_set_up import play_button_icon_abs_path as play_btn_pa
 from PIL import ImageTk, Image
 import time
 from data.file_os_manager import notification_call
+import textwrap
 
 # Default values FHD:
 WINDOW_WIDTH = 1066
 WINDOW_HEIGHT = 600
 SCALE_FACTOR = 1
+
+# Public data
+checkbutton_frames = []
 
 
 class TkinterApp(tk.Tk):
@@ -285,8 +289,9 @@ class CountdownPage(tk.Frame):
 class ToDoPage(tk.Frame):
     color = '#024EE7'
     color_2 = 'WHITE'
-    number_of_task = 0
-    
+    number_of_task = 3
+    empty_default_space = " " * 80 + "\n\n"
+
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         ###############################
@@ -308,7 +313,7 @@ class ToDoPage(tk.Frame):
         self.task_name_entry = tk.Entry(self, width=26 * SCALE_FACTOR, font='Helvetica 20 bold')
         self.task_name_entry.insert(0, "TaskName")
         self.add_new_task = tk.Button(self, text='ADD TASK', width=9*SCALE_FACTOR, font='Helvetica 12 bold',
-                                 relief='groove')
+                                 relief='groove', command=lambda: add_task())
         self.description_label = tk.Label(self, text="Task Description:", font='Helvetica 15 bold', bg=ToDoPage.color,
                                      fg=ToDoPage.color_2)
         self.task_description_entry = tk.Text(self, width=53 * SCALE_FACTOR, height=6, font='Helvetica 13')
@@ -337,6 +342,46 @@ class ToDoPage(tk.Frame):
         self.high_importance_combo.place(x=int(WINDOW_WIDTH / 1.6 * SCALE_FACTOR), y=int(WINDOW_HEIGHT / 1.65 * SCALE_FACTOR),
                               anchor='center')
 
+        def add_task():
+            task_name = self.task_name_entry.get()
+            task_description = self.task_description_entry.get('1.0', tk.END)
+            importance_level = self.importance_level_input.get()
+
+            checkbutton_frame = ToDoPage.CheckbuttonFrame(self.checkbutton_list.inner_frame, get_title(), get_description(),
+                                                 ToDoPage.number_of_task + 1, 'RED')
+            checkbutton_frames.append(checkbutton_frame)
+            checkbutton_frame.draw()
+            ToDoPage.number_of_task += 1
+            self.task_name_entry.delete(0, tk.END)
+            self.task_description_entry.delete('1.0', tk.END)
+
+        def get_description():
+            my_text = self.task_description_entry.get('1.0', tk.END)
+            text = my_text + ' ' * (240 - len(my_text))
+            if len(text) > 240:
+                text = text[:240]
+            text = text.replace('\n', ' ')
+            words = text.split(' ')
+            new_text = ''
+            count = 0
+            for i, word in enumerate(words):
+                if count + len(word) >= 80:
+                    new_text += '\n' + word + ' '
+                    count = len(word) + 1
+                else:
+                    new_text += word + ' '
+                    count += len(word) + 1
+            new_text = new_text.rstrip()  # Remove trailing space
+            if len(new_text) < 240:
+                new_text += ' ' * (240 - len(new_text))
+                print(new_text)
+            return new_text
+
+        def get_title(every=50):
+            return textwrap.fill(self.task_name_entry.get(), every)
+
+
+
     class CheckbuttonFrame:
         def __init__(self, parent, title, sub_label, frame_number, importance):
             self.parent = parent
@@ -346,7 +391,7 @@ class ToDoPage(tk.Frame):
             self.frame = tk.Frame(parent, relief='solid', borderwidth=5)
             self.checkbutton = ttk.Checkbutton(self.frame, variable=self.var)
             self.label = tk.Label(self.frame, text=title)
-            self.sub_label = ttk.Label(self.frame, text=sub_label)
+            self.sub_label = tk.Label(self.frame, text=sub_label, bg='yellow')
             self.importance_level_label = tk.Label(self.frame, text=" "*2, bg=self.importance_level)
 
             self.checkbutton.grid(row=0, column=0, sticky='nw', padx=8, pady=2)
@@ -359,6 +404,7 @@ class ToDoPage(tk.Frame):
 
     class CheckbuttonList:
         def __init__(self, parent):
+            global checkbutton_frames
             self.parent = parent
             self.scroll_frame = ttk.Frame(parent)
             self.scroll_frame.pack(fill=tk.Y, expand=True, side=tk.LEFT, anchor="nw")
@@ -369,12 +415,11 @@ class ToDoPage(tk.Frame):
             self.canvas.configure(yscrollcommand=self.scrollbar.set)
             self.inner_frame = ttk.Frame(self.canvas)
             self.canvas.create_window((0, 0), window=self.inner_frame, anchor='nw')
-            self.checkbutton_frames = []
-            self.empty_default_space = " " * 80 + "\n\n"
+            self.checkbutton_frames = checkbutton_frames
 
             for i in range(ToDoPage.number_of_task):
                 checkbutton_frame = ToDoPage.CheckbuttonFrame(self.inner_frame, self.set_title() + str(i + 1),
-                                                              self.empty_default_space, i + 1, "RED")
+                                                              ToDoPage.empty_default_space, i + 1, "RED")
                 self.checkbutton_frames.append(checkbutton_frame)
             self.draw()
 
@@ -400,6 +445,7 @@ class ToDoPage(tk.Frame):
 
         def set_title(self):
             return "Title"
+
 
 
 # Driver Code
