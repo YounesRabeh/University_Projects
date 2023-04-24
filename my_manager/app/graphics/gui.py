@@ -285,7 +285,8 @@ class CountdownPage(tk.Frame):
 class ToDoPage(tk.Frame):
     color = '#024EE7'
     color_2 = 'WHITE'
-
+    number_of_task = 0
+    
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         ###############################
@@ -320,7 +321,6 @@ class ToDoPage(tk.Frame):
         self.high_importance_combo.current(0)
         self.high_importance_combo.config(state='readonly', style="TCombobox")
 
-
         # UI LAYOUT:
         self.delete_button.place(x=700, y=500)
         self.print_button.place(x=800, y=500)
@@ -354,7 +354,6 @@ class ToDoPage(tk.Frame):
             self.label.grid(row=0, column=1, sticky='w')
             self.sub_label.grid(row=1, column=1, sticky='w')
 
-
         def draw(self):
             self.frame.pack(padx=5, pady=5, fill=tk.BOTH)
 
@@ -373,7 +372,7 @@ class ToDoPage(tk.Frame):
             self.checkbutton_frames = []
             self.empty_default_space = " " * 80 + "\n\n"
 
-            for i in range(5):
+            for i in range(ToDoPage.number_of_task):
                 checkbutton_frame = ToDoPage.CheckbuttonFrame(self.inner_frame, self.set_title() + str(i + 1),
                                                               self.empty_default_space, i + 1, "RED")
                 self.checkbutton_frames.append(checkbutton_frame)
