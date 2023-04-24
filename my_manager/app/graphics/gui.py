@@ -52,6 +52,7 @@ class TkinterApp(tk.Tk):
 
         # Window Settings:
         self.geometry(get_screen_size())
+        print(get_screen_size())
         self.title("My Manager --test")
         self.resizable(width=False, height=False)
         self.wm_iconphoto(False, self.logo_icon)
@@ -282,33 +283,77 @@ class CountdownPage(tk.Frame):
 
 
 class ToDoPage(tk.Frame):
+    color = '#024EE7'
+    color_2 = 'WHITE'
+
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         ###############################
-        self.color = 'BLUE'
+        self.color = '#024EE7'
+        self.color_2 = 'WHITE'
+        self.color_3 = 'Black'
+
+        style = ttk.Style()
+        style.map("TCombobox")
+        style.configure("TCombobox", selectforeground=self.color_3, selectbackground=self.color_2)
 
         tk.Frame.configure(self, bg=self.color)
         # UI:
-        checkbutton_list = ToDoPage.CheckbuttonList(self)
-        delete_button = ttk.Button(self, text='Delete Checked', command=checkbutton_list.delete_checked_checkbuttons)
-        print_button = ttk.Button(self, text='Print values', command=checkbutton_list.print_checkbutton_values)
+        self.checkbutton_list = ToDoPage.CheckbuttonList(self)
+        self.delete_button = ttk.Button(self, text='Delete Checked',
+                                        command=self.checkbutton_list.delete_checked_checkbuttons)
+        self.print_button = ttk.Button(self, text='Print values',
+                                       command=self.checkbutton_list.print_checkbutton_values)
+        self.task_name_entry = tk.Entry(self, width=26 * SCALE_FACTOR, font='Helvetica 20 bold')
+        self.task_name_entry.insert(0, "TaskName")
+        self.add_new_task = tk.Button(self, text='ADD TASK', width=9*SCALE_FACTOR, font='Helvetica 12 bold',
+                                 relief='groove')
+        self.description_label = tk.Label(self, text="Task Description:", font='Helvetica 15 bold', bg=ToDoPage.color,
+                                     fg=ToDoPage.color_2)
+        self.task_description_entry = tk.Text(self, width=53 * SCALE_FACTOR, height=6, font='Helvetica 13')
+        self.importance_level_label = tk.Label(self, text="Importance ", font='Helvetica 15 bold', bg=ToDoPage.color,
+                                     fg=ToDoPage.color_2)
+        self.importance_level_input = tk.StringVar()
+        self.importance_list = ["None", "Low", "Medium", "High"]
+        self.high_importance_combo = ttk.Combobox(self, textvariable=self.importance_level_input,
+                                                  values=self.importance_list)
+        self.high_importance_combo.current(0)
+        self.high_importance_combo.config(state='readonly', style="TCombobox")
+
 
         # UI LAYOUT:
-        delete_button.pack(side=tk.RIGHT, padx=10, pady=10)
-        print_button.pack(side=tk.RIGHT, padx=10, pady=10)
+        self.delete_button.place(x=700, y=500)
+        self.print_button.place(x=800, y=500)
+        self.task_name_entry.place(x=int(WINDOW_WIDTH / 1.615 * SCALE_FACTOR), y=int(WINDOW_HEIGHT / 15 * SCALE_FACTOR),
+                              anchor='center')
+        self.add_new_task.place(x=int(WINDOW_WIDTH / 1.077 * SCALE_FACTOR), y=int(WINDOW_HEIGHT / 15 * SCALE_FACTOR),
+                              anchor='center')
+        self.description_label.place(x=int(WINDOW_WIDTH / 2.085 * SCALE_FACTOR), y=int(WINDOW_HEIGHT / 5 * SCALE_FACTOR),
+                              anchor='center')
+        self.task_description_entry.place(x=int(WINDOW_WIDTH / 1.455 * SCALE_FACTOR), y=int(WINDOW_HEIGHT / 2.5 * SCALE_FACTOR),
+                              anchor='center')
+        self.importance_level_label.place(x=int(WINDOW_WIDTH / 2.2 * SCALE_FACTOR), y=int(WINDOW_HEIGHT / 1.65 * SCALE_FACTOR),
+                              anchor='center')
+        self.high_importance_combo.place(x=int(WINDOW_WIDTH / 1.6 * SCALE_FACTOR), y=int(WINDOW_HEIGHT / 1.65 * SCALE_FACTOR),
+                              anchor='center')
 
     class CheckbuttonFrame:
-        def __init__(self, parent, title, sub_label, frame_number):
+        def __init__(self, parent, title, sub_label, frame_number, importance):
             self.parent = parent
+            self.importance_level = importance
             self.var = tk.BooleanVar()
             self.frame_number = frame_number
-            self.frame = ttk.Frame(parent, relief='solid', borderwidth=5,)
+            self.frame = tk.Frame(parent, relief='solid', borderwidth=5)
             self.checkbutton = ttk.Checkbutton(self.frame, variable=self.var)
-            self.label = ttk.Label(self.frame, text=title)
+            self.label = tk.Label(self.frame, text=title)
             self.sub_label = ttk.Label(self.frame, text=sub_label)
+            self.importance_level_label = tk.Label(self.frame, text=" "*2, bg=self.importance_level)
+
             self.checkbutton.grid(row=0, column=0, sticky='nw', padx=8, pady=2)
+            self.importance_level_label.grid(row=0, column=1, sticky='ne')
             self.label.grid(row=0, column=1, sticky='w')
             self.sub_label.grid(row=1, column=1, sticky='w')
+
 
         def draw(self):
             self.frame.pack(padx=5, pady=5, fill=tk.BOTH)
@@ -318,7 +363,7 @@ class ToDoPage(tk.Frame):
             self.parent = parent
             self.scroll_frame = ttk.Frame(parent)
             self.scroll_frame.pack(fill=tk.Y, expand=True, side=tk.LEFT, anchor="nw")
-            self.canvas = tk.Canvas(self.scroll_frame, bg='white')
+            self.canvas = tk.Canvas(self.scroll_frame, bg=ToDoPage.color_2)
             self.canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, anchor="nw")
             self.scrollbar = ttk.Scrollbar(self.scroll_frame, orient=tk.VERTICAL, command=self.canvas.yview)
             self.scrollbar.pack(side=tk.RIGHT, fill=tk.Y, anchor="e")
@@ -328,9 +373,9 @@ class ToDoPage(tk.Frame):
             self.checkbutton_frames = []
             self.empty_default_space = " " * 80 + "\n\n"
 
-            for i in range(20):
+            for i in range(5):
                 checkbutton_frame = ToDoPage.CheckbuttonFrame(self.inner_frame, self.set_title() + str(i + 1),
-                                                              self.empty_default_space, i + 1)
+                                                              self.empty_default_space, i + 1, "RED")
                 self.checkbutton_frames.append(checkbutton_frame)
             self.draw()
 
