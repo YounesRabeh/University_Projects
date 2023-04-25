@@ -12,7 +12,7 @@ A simple app made by simple guy for simple people that want to achieve their sim
 * Timer
 
 ## Necessary Modules
-```
+```python
 pip3 install tk
 ```
 ```
