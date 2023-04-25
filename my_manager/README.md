@@ -1,5 +1,6 @@
-# My Manager Project 
 <img align="right" width = 100 height = 100 src="https://github.com/YounesRabeh/University_Projects/blob/main/my_manager/about/MyManagerLogo.png">
+# My Manager Project 
+
 
 * To-Do List
 * Countdown Clock
