@@ -431,6 +431,7 @@ class ToDoPage(tk.Frame):
             self.canvas.configure(yscrollcommand=self.scrollbar.set)
             self.inner_frame = ttk.Frame(self.canvas)
             self.canvas.create_window((0, 0), window=self.inner_frame, anchor='nw')
+            self.frame_number_update()
 
             for i in range(ToDoPage.number_of_task - 1):
                 checkbutton_frame = ToDoPage.CheckbuttonFrame(self.inner_frame,
@@ -445,6 +446,7 @@ class ToDoPage(tk.Frame):
             self.draw()
 
         def draw(self):
+            self.frame_number_update()
             for checkbutton_frame in self.checkbutton_frames:
                 checkbutton_frame.draw()
             self.canvas.update_idletasks()
