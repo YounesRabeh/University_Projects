@@ -10,9 +10,19 @@
 ## Necessary Modules
 ```
 pip3 install tk
-pip3 install pillow
 ```
-
+```
+pip3 install Pillow
+```
+```
+pip3 install textwrap3
+```
+```
+pip3 install plyer
+```
+```
+pip3 install numpy
+```
 
 # To-Do:
 ![](https://github.com/YounesRabeh/University_Projects/blob/main/my_manager/about/ToDoWindow.png)
