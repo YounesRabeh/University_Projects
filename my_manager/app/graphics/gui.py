@@ -316,9 +316,9 @@ class ToDoPage(tk.Frame):
         tk.Frame.configure(self, bg=self.color)
         # UI:
         self.checkbutton_list = ToDoPage.CheckbuttonList(self)
-        self.delete_button = ttk.Button(self, text='Delete Checked',
+        self.delete_button = tk.Button(self, text='Delete Checked', font='Helvetica 12 bold', relief='groove',
                                         command=lambda: self.checkbutton_list.delete_checked_checkbutton())
-        self.print_button = ttk.Button(self, text='Print values',
+        self.print_button = tk.Button(self, text='Print values',
                                        command=self.checkbutton_list.print_checkbutton_values)
         self.task_name_entry = tk.Entry(self, width=26 * SCALE_FACTOR, font='Helvetica 20 bold')
         self.task_name_entry.insert(0, "TaskName")
@@ -337,8 +337,9 @@ class ToDoPage(tk.Frame):
         self.high_importance_combo.config(state='readonly', style="TCombobox")
 
         # UI LAYOUT:
-        self.delete_button.place(x=600, y=500)
-        self.print_button.place(x=800, y=500)
+        self.delete_button.place(x=int(WINDOW_WIDTH / 1.1 * SCALE_FACTOR), y=int(WINDOW_HEIGHT / 1.05 * SCALE_FACTOR),
+                                   anchor='center')
+        #self.print_button.place(x=800, y=500)
         self.task_name_entry.place(x=int(WINDOW_WIDTH / 1.615 * SCALE_FACTOR), y=int(WINDOW_HEIGHT / 15 * SCALE_FACTOR),
                                    anchor='center')
         self.add_new_task.place(x=int(WINDOW_WIDTH / 1.077 * SCALE_FACTOR), y=int(WINDOW_HEIGHT / 15 * SCALE_FACTOR),
@@ -378,15 +379,15 @@ class ToDoPage(tk.Frame):
             self.checkbutton_list.draw()
             save_task_data(title, description, importance)
 
-        def get_importance(input):
-            if input == "High":
-                return "RED"
-            elif input == "Medium":
-                return "ORANGE"
-            elif input == "Low":
-                return "GREEN"
+        def get_importance(_input):
+            if _input == "High":
+                return "#F42501"
+            elif _input == "Medium":
+                return "#FBDD02"
+            elif _input == "Low":
+                return "#01EC00"
             else:
-                return "GRAY"
+                return "#D4D9D4"
 
         def get_title(every=37):
             return textwrap.fill(self.task_name_entry.get(), every)
@@ -415,11 +416,6 @@ class ToDoPage(tk.Frame):
 
         def draw(self):
             self.frame.pack(padx=5, pady=5, fill=tk.BOTH)
-
-        def update(self):
-            self.count += 1
-
-            self.after(1000, self.update)
 
     class CheckbuttonList:
         def __init__(self, parent):
@@ -456,6 +452,7 @@ class ToDoPage(tk.Frame):
 
         def delete_checked_checkbutton(self):
             new_frames = []
+            self.frame_number_update()
             for checkbutton_frame in self.checkbutton_frames:
                 if not checkbutton_frame.var.get():
                     new_frames.append(checkbutton_frame)
@@ -464,7 +461,6 @@ class ToDoPage(tk.Frame):
                     checkbutton_frame.frame.pack_forget()
 
             self.checkbutton_frames = new_frames
-            self.frame_number_update()
             self.draw()
 
         def frame_number_update(self):
