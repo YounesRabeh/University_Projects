@@ -13,19 +13,8 @@ A simple app made by simple guy for simple people that want to achieve their sim
 
 ## Necessary Modules
 ```
-pip3 install tk
-```
-```
-pip3 install Pillow
-```
-```
-pip3 install textwrap3
-```
-```
-pip3 install plyer
-```
-```
-pip3 install numpy
+pip3 install pathlib plyer numpy Pillow tk
+
 ```
 
 # To-Do:
