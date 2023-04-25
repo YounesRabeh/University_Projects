@@ -11,7 +11,7 @@ A simple app made by simple guy for simple people that want to achieve their sim
 * Countdown Clock
 * Timer
 
-## Necessary Modules
+## Necessary Libraries
 ### Upgrade pip:
 ```
 pip3 install --upgrade pip
