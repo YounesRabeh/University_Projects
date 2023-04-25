@@ -321,7 +321,7 @@ class ToDoPage(tk.Frame):
         self.print_button = tk.Button(self, text='Print values',
                                        command=self.checkbutton_list.print_checkbutton_values)
         self.task_name_entry = tk.Entry(self, width=26 * SCALE_FACTOR, font='Helvetica 20 bold')
-        self.task_name_entry.insert(0, "TaskName")
+        self.task_name_entry.insert(0, "Task Name")
         self.add_new_task = tk.Button(self, text='ADD TASK', width=9 * SCALE_FACTOR, font='Helvetica 12 bold',
                                       relief='groove', command=lambda: add_task())
         self.description_label = tk.Label(self, text="Task Description:", font='Helvetica 15 bold', bg=ToDoPage.color,
@@ -374,7 +374,7 @@ class ToDoPage(tk.Frame):
             checkbutton_frame.draw()
             ToDoPage.task_counter += 1
             self.task_name_entry.delete(0, tk.END)
-            self.task_name_entry.insert(0, f"TaskName")
+            self.task_name_entry.insert(0, f"Task Name")
             self.task_description_entry.delete('1.0', tk.END)
             self.checkbutton_list.draw()
             save_task_data(title, description, importance)
@@ -459,7 +459,7 @@ class ToDoPage(tk.Frame):
                 else:
                     delete_data(checkbutton_frame.frame_number)
                     checkbutton_frame.frame.pack_forget()
-
+            self.frame_number_update()
             self.checkbutton_frames = new_frames
             self.draw()
 
