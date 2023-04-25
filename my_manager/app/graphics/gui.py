@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
+import tkinter.messagebox
 from app.resources.images_set_up import play_button_icon_abs_path as play_btn_path, \
     pause_button_icon_abs_path as pause_btn_path, reset_button_icon_abs_path as reset_btn_path, \
     logo_icon_abs_path as logo_icon_path
@@ -57,7 +58,7 @@ class TkinterApp(tk.Tk):
 
         # Window Settings:
         self.geometry(get_screen_size())
-        print(get_screen_size())
+        #print(get_screen_size())
         self.title("My Manager --test")
         self.resizable(width=False, height=False)
         self.wm_iconphoto(False, self.logo_icon)
@@ -66,22 +67,26 @@ class TkinterApp(tk.Tk):
         menubar = tk.Menu(self)
         self.config(menu=menubar, relief='ridge')
         new_menu = tk.Menu(menubar, tearoff=0, relief='ridge')
-        new_menu.add_command(label="Timer", command=lambda: self.show_frame(TimerPage))
-        new_menu.add_command(label="Countdown", command=lambda: self.show_frame(CountdownPage))
         new_menu.add_command(label="TO-DO", command=lambda: self.show_frame(ToDoPage))
+        new_menu.add_command(label="Countdown", command=lambda: self.show_frame(CountdownPage))
+        new_menu.add_command(label="Timer", command=lambda: self.show_frame(TimerPage))
         new_menu.add_separator()
+        new_menu.add_command(label="About", command=lambda: on_click())
         new_menu.add_command(label="Exit", command=lambda: self.destroy())
         menubar.add_cascade(label="File", menu=new_menu)
 
         # Frames Manager:
         self.frames = {}
-        self.my_frames = [TimerPage, CountdownPage, ToDoPage]
+        self.my_frames = [ToDoPage, TimerPage, CountdownPage]
         for F in self.my_frames:
             frame = F(container, self)
             # initializing frame of that object from, TimerPage respectively with the for loop
             self.frames[F] = frame
             frame.grid(row=0, column=0, sticky="nsew")
         self.show_frame(ToDoPage)
+
+        def on_click():
+            tkinter.messagebox.showinfo("About My Manager", "Developed by Younes ;) \n(25/04/2023)")
 
     def scale_factor(self):
         # TODO: make a function that returns the correct scale factor for every screen size
@@ -477,8 +482,3 @@ class ToDoPage(tk.Frame):
             self.canvas.configure(yscrollcommand=self.scrollbar.set)
 
             self.after(1000, self.update)
-
-
-# Driver Code
-app = TkinterApp()
-app.mainloop()
