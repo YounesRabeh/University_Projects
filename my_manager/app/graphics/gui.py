@@ -376,6 +376,7 @@ class ToDoPage(tk.Frame):
             self.task_name_entry.delete(0, tk.END)
             self.task_name_entry.insert(0, f"Task Name")
             self.task_description_entry.delete('1.0', tk.END)
+            self.high_importance_combo.current(0)
             self.checkbutton_list.draw()
             save_task_data(title, description, importance)
 
