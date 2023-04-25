@@ -1,9 +1,9 @@
 # My Manager Project 
 
 <img align="right" width = 100 height = 100 src="https://github.com/YounesRabeh/University_Projects/blob/main/my_manager/about/MyManagerLogo.png">
-A simple app made by simple guy for simple people that want to achieve their simple dreams.
+A simple app made by simple guy for simple people that want to achieve their simple dreams. Devoloped using:
 
-> Devoloped using "La programmazione alla Culmonese" 
+>"La programmazione alla Culmonese" 
 
 * To-Do List
 * Countdown Clock
