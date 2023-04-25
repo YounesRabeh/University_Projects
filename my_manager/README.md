@@ -2,6 +2,7 @@
 * To-Do List
 * Countdown Clock
 * Timer
+<img align="left" width="100" height="100" src="https://github.com/YounesRabeh/University_Projects/blob/main/my_manager/about/MyManagerLogo.png">
 
 
 
