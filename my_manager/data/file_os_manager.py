@@ -40,7 +40,6 @@ def get_stored_data():
 
         end_of_index = current_line.find("\n")
         importance = current_line[0:end_of_index]
-  
         DATA_FILE[line_counter][0] = title
         DATA_FILE[line_counter][1] = description
         DATA_FILE[line_counter][2] = importance
@@ -56,8 +55,6 @@ def delete_data(line_number):
 
     with open(DATA_file_abs_path, "w") as file:
         file.writelines(lines)
-
-
 
 def number_of_lines(file):
     count = 0
