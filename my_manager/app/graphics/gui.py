@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import tkinter as tk
 from tkinter import ttk
 import tkinter.messagebox
@@ -135,7 +136,7 @@ class TimerPage(tk.Frame):
                 self.seconds = current_elapsed_time % 60
                 self.minutes = (current_elapsed_time // 60) % 60
                 self.hours = current_elapsed_time // 3600
-                time_string = f"{self.hours:02d}:{self.minutes:02d}:{self.seconds:02d}"
+                time_string = (f"{self.hours:02d}:{self.minutes:02d}:{self.seconds:02d}")
                 self.time_label.config(text=time_string)
             self.master.after(1000, tick)
 
@@ -482,3 +483,7 @@ class ToDoPage(tk.Frame):
             self.canvas.configure(yscrollcommand=self.scrollbar.set)
 
             self.after(1000, self.update)
+
+#################
+app = TkinterApp()
+app.mainloop()
