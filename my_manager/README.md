@@ -12,11 +12,11 @@ A simple app made by simple guy for simple people that want to achieve their sim
 * Timer
 
 ## Necessary Modules
-## Upgrade pip:
+### Upgrade pip:
 ```
 pip3 install --upgrade pip
 ```
-## Install the modules:
+### Install the modules:
 ```
 pip3 install pathlib plyer numpy Pillow tk
 ```
