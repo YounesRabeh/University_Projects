@@ -21,6 +21,7 @@ pip3 install --upgrade pip
 pip3 install pathlib plyer numpy Pillow tk
 ```
 
+
 # To-Do:
 ![](https://github.com/YounesRabeh/University_Projects/blob/main/my_manager/about/ToDoWindow.png)
 
