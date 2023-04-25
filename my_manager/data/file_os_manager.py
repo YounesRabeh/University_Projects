@@ -40,7 +40,7 @@ def get_stored_data():
 
         end_of_index = current_line.find("\n")
         importance = current_line[0:end_of_index]
-        #single_data_array = np.array([title, description, importance])
+  
         DATA_FILE[line_counter][0] = title
         DATA_FILE[line_counter][1] = description
         DATA_FILE[line_counter][2] = importance
