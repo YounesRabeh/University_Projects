@@ -14,7 +14,6 @@ A simple app made by simple guy for simple people that want to achieve their sim
 ## Necessary Modules
 ```
 pip3 install pathlib plyer numpy Pillow tk
-
 ```
 
 # To-Do:
