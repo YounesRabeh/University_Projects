@@ -7,6 +7,9 @@
 * Countdown Clock
 * Timer
 
+```
+pip3 install tk
+```
 
 
 # To-Do:
