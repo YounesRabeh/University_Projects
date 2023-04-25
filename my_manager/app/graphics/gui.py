@@ -6,7 +6,9 @@ from app.resources.images_set_up import play_button_icon_abs_path as play_btn_pa
 
 from PIL import ImageTk, Image
 import time
-from data.file_os_manager import notification_call
+from data.file_os_manager import notification_call, save_task_data, get_stored_data, NUMBER_OF_LINES, DATA_FILE, \
+    delete_data
+
 import textwrap
 
 # Default values FHD:
@@ -284,11 +286,14 @@ class CountdownPage(tk.Frame):
             self.total_elapsed_time = 0
             self.x = 0
 
-
 class ToDoPage(tk.Frame):
+    LOCAL_DATA_ARRAY = DATA_FILE
+    number_of_task = NUMBER_OF_LINES
+    task_counter = 0
+
     color = '#024EE7'
     color_2 = 'WHITE'
-    number_of_task = 1
+
     empty_default_space = " " * 80 + "\n\n"
 
     def __init__(self, parent, controller):
@@ -346,19 +351,26 @@ class ToDoPage(tk.Frame):
                                          anchor='center')
 
         def add_task():
+            title = get_title()
+            description = get_description()
+            frame_number = ToDoPage.task_counter
+            importance = get_importance(self.importance_level_input.get())
+
+            #################
             checkbutton_frame = ToDoPage.CheckbuttonFrame(self.checkbutton_list.inner_frame,
-                                                          get_title(),
-                                                          get_description(),
-                                                          ToDoPage.number_of_task,
-                                                          get_importance(self.importance_level_input.get()))
+                                                          title,
+                                                          description,
+                                                          frame_number,
+                                                          importance)
 
             self.checkbutton_list.checkbutton_frames.append(checkbutton_frame)
             checkbutton_frame.draw()
-            ToDoPage.number_of_task += 1
+            ToDoPage.task_counter += 1
             self.task_name_entry.delete(0, tk.END)
             self.task_name_entry.insert(0, f"TaskName")
             self.task_description_entry.delete('1.0', tk.END)
             self.checkbutton_list.draw()
+            save_task_data(title, description, importance)
 
         def get_importance(input):
             if input == "High":
@@ -418,11 +430,16 @@ class ToDoPage(tk.Frame):
             self.inner_frame = ttk.Frame(self.canvas)
             self.canvas.create_window((0, 0), window=self.inner_frame, anchor='nw')
 
-            for i in range(ToDoPage.number_of_task):
-                checkbutton_frame = ToDoPage.CheckbuttonFrame(self.inner_frame, "Task Name (example)",
-                                                              "The task description .... " + " " * 36, 0, "gray")
+            for i in range(ToDoPage.number_of_task - 1):
+                checkbutton_frame = ToDoPage.CheckbuttonFrame(self.inner_frame,
+                                                              ToDoPage.LOCAL_DATA_ARRAY[i][0],
+                                                              ToDoPage.LOCAL_DATA_ARRAY[i][1],
+                                                              ToDoPage.task_counter,
+                                                              ToDoPage.LOCAL_DATA_ARRAY[i][2])
                 self.checkbutton_frames.append(checkbutton_frame)
-                checkbutton_frame.checkbutton.config(state='disable')
+                if i == 0:
+                    checkbutton_frame.checkbutton.config(state='disable')
+                ToDoPage.task_counter += 1
             self.draw()
 
         def draw(self):
@@ -437,7 +454,9 @@ class ToDoPage(tk.Frame):
                 if not checkbutton_frame.var.get():
                     new_frames.append(checkbutton_frame)
                 else:
+                    delete_data(checkbutton_frame.frame_number)
                     checkbutton_frame.frame.pack_forget()
+
             self.checkbutton_frames = new_frames
             self.frame_number_update()
             self.draw()
@@ -456,10 +475,6 @@ class ToDoPage(tk.Frame):
         def update(self):
             self.count += 1
             self.canvas.configure(yscrollcommand=self.scrollbar.set)
-            #self.canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, anchor="nw")
-            #self.canvas.create_window((0, 0), window=self.inner_frame, anchor='nw')
-
-            #self.scroll_frame.pack(fill=tk.Y, expand=True, side=tk.LEFT, anchor="nw")
 
             self.after(1000, self.update)
 
