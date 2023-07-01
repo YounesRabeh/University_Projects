@@ -1,125 +1,78 @@
-volatile bool isSignalFinished = false;
-volatile bool isSignalStarted = false;
-volatile bool isFirstInterrupt = true;
-
-
-byte byteIndex = 0;
-volatile byte signalReceived = 0B00000000;
-
-
-#define NEC_START_FRAME_HIGH_TIME 2249 //9000
-#define NEC_START_FRAME_LOW_TIME 1125 //4000
-#define NEC_ZERO_TIME_INTERVAL 263 //1250
-#define NEC_ONE_TIME_INTERVAL 553 //2250
-#define NEC_COMMAND_SIGNAL_STARTING 10125// 40500
-
-byte pulseIndex = 0;
-volatile short decodedTimeSignal;
-
-
-
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
   outputSetUp();
   timerSetUp();
 }
 
+volatile byte pulseIndex = 0;
+volatile byte signalReceived = 0B00000000;
+
 
 void loop() {
-  
-}
+  // put your main code here, to run repeatedly:
 
-ISR(TIMER1_COMPA_vect) {
-  //Every 67,500 ms
-  isFirstInterrupt = true;
-  pulseIndex = 0;
-  byteIndex = 0;
-}
-
-void timerSetUp(){
-  TCCR1A = 0; 
-  TCCR1B = 0;
-  TCNT1 = 0; 
-  TCCR1B |= (1 << CS11) | (1 << CS10);//PRESCALLAR 64:
-  OCR1A = 16875; // (67,500 / 4)
-  TIMSK1 |= (1 << OCIE1A);// Enable timerinterrupt
-  TCCR1B |= (1 << WGM12);
 }
 
 void outputSetUp(){
-  DDRD &= ~(1 << DDD2);   //Pin 2 as input
-  PORTD |= (1 << PORTD2); //Enable internal pull-up resistor on pin 2
-
-  PCICR |= (1 << PCIE2); // Enable Pin Change Interrupt 2
-  PCMSK2 |= (1 << PCINT18); // Enable interrupt for Pin 2 (PCINT18)
+  DDRD   &= ~(1 << DDD2);    //Pin 2 as input
+  PORTD  |= (1 << PORTD2);   //Enable internal pull-up resistor on pin 2
+  PCICR  |= (1 << PCIE2);    // Enable Pin Change Interrupt 2
+  PCMSK2 |= (1 << PCINT18);  // Enable interrupt for Pin 2
 }
 
-volatile int _time;
-volatile unsigned int timeWhenInterrupted = 0;
+void timerSetUp(){
+  TCCR1A  = 0; 
+  TCCR1B  = 0;
+  TCNT1   = 0; 
+  TCCR1B |= (1 << CS11) | (1 << CS10); //PRESCALLAR 64:
+  OCR1A   = 16875;                     // (67,500 / 4) (16875) old
+  TIMSK1 |= (1 << OCIE1A);             // Enable timerinterrupt
+  TCCR1B |= (1 << WGM12);
+}
 
-volatile bool isThisStartFrame = false;
+ISR(TIMER1_COMPA_vect) {     //Every 67,500 ms
+  PCMSK2 |= (1 << PCINT18);  // Enable interrupt for Pin 2 
+  pulseIndex = 0;
+}
 
-volatile int ___time = 0;
-volatile int storedTime = 0;
-volatile bool isValidSample = false; 
+volatile short delaTimeInerrupt;
+volatile short previousDeltaTime;
+volatile int storedTime;
 
-ISR(PCINT2_vect) {
-  timeWhenInterrupted = TCNT1;
-  if(pulseIndex < 3){
-    startFrameCheck();
+ISR(PCINT2_vect) {          //PIN2 interrupt
+  if (pulseIndex == 0){timerSetUp();}
+  delaTimeInerrupt = TCNT1 - storedTime;
+  storedTime = TCNT1;
+
+  if (pulseIndex - 2 <= 0){
+    isStartOfFrame(delaTimeInerrupt); pulseIndex++; return;
   }
-  if(pulseIndex == 2 && isThisStartFrame){
-    isSignalStarted = true;
-
-  }else if(isSignalStarted && (pulseIndex >= 34 && pulseIndex <= 51)){
-    short timeDifference = timeWhenInterrupted - storedTime;
-    if(byteIndex < 8){
-      if(timeDifference - NEC_ONE_TIME_INTERVAL >= 0){
-        decode(1);
-        byteIndex++;
-      }else if (timeDifference - NEC_ZERO_TIME_INTERVAL >= 0){
-        decode(0);
-        byteIndex++;
-      }
-    }
-    isValidSample = !isValidSample; 
-    if(isValidSample){
-      storedTime = timeWhenInterrupted;
+  if ((pulseIndex > 34 && pulseIndex < 51)){
+    if (pulseIndex % 2 == 1){previousDeltaTime = delaTimeInerrupt;}
+    else {
+      if((delaTimeInerrupt - 415 > 0)){decode(1);} //(previousDeltaTime - 135 < 0) for the 0
+      else {decode(0);}
     }
   }
-  
   pulseIndex++;
-  if(isSignalStarted && pulseIndex == 52){
+  if(pulseIndex == 52){
     buttons();
   }
 }
 
-void decode(byte value){
-  byte index = byteIndex;
-  byte mask = 1 << index;
-  signalReceived &= ~mask;
-  if (value == 1) {
-    signalReceived |= mask;
-  }
-}
+void decode(byte bit) {
+  signalReceived >>= 1;          // Shift everything to the left
+  signalReceived |= (bit << 7);  // Add the new bit
+}  
 
-void startFrameCheck(){
-  if (isFirstInterrupt) {
-    isFirstInterrupt = false;
-    timerSetUp();
-    return;
-  } 
-  //Serial.println(timeWhenInterrupted);
-  if(timeWhenInterrupted == NEC_START_FRAME_HIGH_TIME){
-    _time = timeWhenInterrupted;
-    return;
-  }
-  if((timeWhenInterrupted - _time) == NEC_START_FRAME_LOW_TIME){
-    isThisStartFrame = true;
-  }else{
-    isThisStartFrame = false;
-  }
+bool midwayFlag = false;
+void isStartOfFrame(short time){
+  
+  if (pulseIndex == 0){return;}
+  if (pulseIndex == 1 && time >= 2200){midwayFlag = true;return;}
+  if (pulseIndex == 2 && midwayFlag == true && time <= 1225){return;}
 
+  else {PCMSK2 &= ~(1 << PCINT18);}// Disable interrupt for Pin 2
 }
 
 void buttons(){
@@ -190,4 +143,6 @@ void buttons(){
       Serial.println(signalReceived);     
   }
 }
+
+
 
