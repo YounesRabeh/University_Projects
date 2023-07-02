@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "author": "YOUNES RABEH",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "wokwi-arduino-uno", "id": "uno", "top": 90.86, "left": 124.71, "attrs": {} },
+    { "type": "wokwi-ir-receiver", "id": "ir1", "top": -50.39, "left": 359.42, "attrs": {} },
+    { "type": "wokwi-ir-remote", "id": "remote1", "top": -0.96, "left": 443.94, "attrs": {} }
+  ],
+  "connections": [
+    [ "ir1:DAT", "uno:2", "blue", [ "v45.07", "h-7.62" ] ],
+    [ "ir1:VCC", "uno:5V", "red", [ "v15.02", "h23.91", "v257.9", "h-130.83" ] ],
+    [ "ir1:GND", "uno:GND.2", "black", [ "v23.16", "h25.37", "v242.25", "h-110.17" ] ]
+  ],
+  "dependencies": {}
+}
