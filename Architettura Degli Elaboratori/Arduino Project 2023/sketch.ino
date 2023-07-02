@@ -1,16 +1,22 @@
-void setup() {
-  Serial.begin(115200);
-  outputSetUp();
-  timerSetUp();
-}
-
+//DECODE VARIABLES:
 volatile byte pulseIndex = 0;
 volatile byte signalReceived = 0B00000000;
+uint64_t storedSignals = 0; //STORED INFO
 
+//TIMER VARIABLES:
+volatile short delaTimeInerrupt;
+volatile short previousDeltaTime;
+volatile short storedTime;
 
-void loop() {
-  // put your main code here, to run repeatedly:
+//PROTOCOL DETECTION VARIABLES:
+byte protocolType;
+short protocolStartBurstLength[] = {2220, 1110, 840, 590};
+//0: NEC, 1:SAMSUNG, 2:JAPAN, 3:SIRCS
+bool midwayFlag = false;
 
+int main(){
+  outputSetUp();
+  timerSetUp();
 }
 
 void outputSetUp(){
@@ -33,11 +39,8 @@ void timerSetUp(){
 ISR(TIMER1_COMPA_vect) {     //Every 67,500 ms
   PCMSK2 |= (1 << PCINT18);  // Enable interrupt for Pin 2 
   pulseIndex = 0;
+  midwayFlag = false;
 }
-
-volatile short delaTimeInerrupt;
-volatile short previousDeltaTime;
-volatile int storedTime;
 
 ISR(PCINT2_vect) {          //PIN2 interrupt
   if (pulseIndex == 0){timerSetUp();}
@@ -45,104 +48,52 @@ ISR(PCINT2_vect) {          //PIN2 interrupt
   storedTime = TCNT1;
 
   if (pulseIndex - 2 <= 0){
-    isStartOfFrame(delaTimeInerrupt); pulseIndex++; return;
+    StartOfFrameCheck(delaTimeInerrupt); pulseIndex++; return;
   }
   if ((pulseIndex > 34 && pulseIndex < 51)){
     if (pulseIndex % 2 == 1){previousDeltaTime = delaTimeInerrupt;}
     else {
-      if((delaTimeInerrupt - 415 > 0)){decode(1);} //(previousDeltaTime - 135 < 0) for the 0
-      else {decode(0);}
+      if((previousDeltaTime - delaTimeInerrupt > -2)){decode(0);}
+      else {decode(1);}
     }
   }
   pulseIndex++;
   if(pulseIndex == 52){
-    buttons();
+    storeData(); 
+    //data collected
   }
 }
 
-void decode(byte bit) {
-  signalReceived >>= 1;          // Shift everything to the left
-  signalReceived |= (bit << 7);  // Add the new bit
+void decode(byte data) {
+  signalReceived >>= 1;           // Shift everything to the left
+  signalReceived |= (data << 7);  // Add the new bit
 }  
 
-bool midwayFlag = false;
-void isStartOfFrame(short time){
-  
-  if (pulseIndex == 0){return;}
-  if (pulseIndex == 1 && time >= 2200){midwayFlag = true;return;}
-  if (pulseIndex == 2 && midwayFlag == true && time <= 1225){return;}
-
-  else {PCMSK2 &= ~(1 << PCINT18);}// Disable interrupt for Pin 2
-}
-
-void buttons(){
-  Serial.print("You pressed: ");
-  switch (signalReceived) {
-    case 162:
-      Serial.println("POWER");
-      break;
-    case 226:
-      Serial.println("MENU");
-      break;
-    case 34:
-      Serial.println("TEST");
-      break;
-    case 2:
-      Serial.println("PLUS");
-      break;
-    case 194:
-      Serial.println("BACK");
-      break;
-    case 224:
-      Serial.println("PREV.");
-      break;
-    case 168:
-      Serial.println("PLAY");
-      break;
-    case 144:
-      Serial.println("NEXT");
-      break;
-    case 104:
-      Serial.println("0");
-      break;
-    case 152:
-      Serial.println("MINUS");
-      break;
-    case 176:
-      Serial.println("C");
-      break;
-    case 48:
-      Serial.println("1");
-      break;
-    case 24:
-      Serial.println("2");
-      break;
-    case 122:
-      Serial.println("3");
-      break;
-    case 16:
-      Serial.println("4");
-      break;
-    case 56:
-      Serial.println("5");
-      break;
-    case 90:
-      Serial.println("6");
-      break;
-    case 66:
-      Serial.println("7");
-      break;
-    case 74:
-      Serial.println("8");
-      break;
-    case 82:
-      Serial.println("9");
-      break;
-    default:
-      Serial.print("UNKNOWN::SignalCode[byte]: ");
-      Serial.println(signalReceived);     
+void storeData(){
+  for (int i = 0; i < 8; i++) {
+    storedSignals = storedSignals << 1;                             // Shift to right
+    storedSignals = storedSignals | ((signalReceived >> i) & 0x01); //add bits
   }
 }
 
+void StartOfFrameCheck(short time){
+  if (pulseIndex == 0){return;}
+  if (pulseIndex == 1){
+    for (byte i = 0; i < 5; i++){
+      if(time - protocolStartBurstLength[i] >= 0){
+        midwayFlag = true; protocolType = i;
+        return;
+      }
+    }
+  }
 
-
+  if (pulseIndex == 2 && midwayFlag == true){
+    switch (protocolType){
+      case 0: if(time - protocolStartBurstLength[1] >= 0){return;} break;
+      case 1: if(time - protocolStartBurstLength[1] >= 0){return;} break;
+      case 2: if(time - protocolStartBurstLength[2] / 2 >= 0){return;} break;
+      case 3: if(time - protocolStartBurstLength[3] / 4 >= 0){return;} break;
+    }
+  }
+  PCMSK2 &= ~(1 << PCINT18);// Disable interrupt for Pin 2
+}
