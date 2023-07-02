@@ -1,12 +1,12 @@
 //DECODE VARIABLES:
 volatile byte pulseIndex = 0;
-volatile byte signalReceived = 0B00000000;
+volatile uint8_t signalReceived = 0B00000000;
 uint64_t storedSignals = 0; //STORED INFO
 
 //TIMER VARIABLES:
-volatile short delaTimeInerrupt;
-volatile short previousDeltaTime;
-volatile short storedTime;
+volatile int16_t delaTimeInerrupt;
+volatile int16_t previousDeltaTime;
+volatile int16_t storedTime;
 
 //PROTOCOL DETECTION VARIABLES:
 byte protocolType;
@@ -14,9 +14,13 @@ short protocolStartBurstLength[] = {2220, 1110, 840, 590};
 //0: NEC, 1:SAMSUNG, 2:JAPAN, 3:SIRCS
 bool midwayFlag = false;
 
-int main(){
+void setup(){
+  Serial.begin(9600);
   outputSetUp();
   timerSetUp();
+}
+void loop(){
+
 }
 
 void outputSetUp(){
@@ -60,6 +64,7 @@ ISR(PCINT2_vect) {          //PIN2 interrupt
   pulseIndex++;
   if(pulseIndex == 52){
     storeData(); 
+    buttons();
     //data collected
   }
 }
@@ -70,13 +75,10 @@ void decode(byte data) {
 }  
 
 void storeData(){
-  for (int i = 0; i < 8; i++) {
-    storedSignals = storedSignals << 1;                             // Shift to right
-    storedSignals = storedSignals | ((signalReceived >> i) & 0x01); //add bits
-  }
+  storedSignals = (storedSignals << 8) | signalReceived;
 }
 
-void StartOfFrameCheck(short time){
+void StartOfFrameCheck(int16_t time){
   if (pulseIndex == 0){return;}
   if (pulseIndex == 1){
     for (byte i = 0; i < 5; i++){
@@ -96,4 +98,72 @@ void StartOfFrameCheck(short time){
     }
   }
   PCMSK2 &= ~(1 << PCINT18);// Disable interrupt for Pin 2
+}
+void buttons(){
+  Serial.print("You pressed: ");
+  switch (signalReceived) {
+    case 162:
+      Serial.println("POWER");
+      break;
+    case 226:
+      Serial.println("MENU");
+      break;
+    case 34:
+      Serial.println("TEST");
+      break;
+    case 2:
+      Serial.println("PLUS");
+      break;
+    case 194:
+      Serial.println("BACK");
+      break;
+    case 224:
+      Serial.println("PREV.");
+      break;
+    case 168:
+      Serial.println("PLAY");
+      break;
+    case 144:
+      Serial.println("NEXT");
+      break;
+    case 104:
+      Serial.println("0");
+      break;
+    case 152:
+      Serial.println("MINUS");
+      break;
+    case 176:
+      Serial.println("C");
+      break;
+    case 48:
+      Serial.println("1");
+      break;
+    case 24:
+      Serial.println("2");
+      break;
+    case 122:
+      Serial.println("3");
+      break;
+    case 16:
+      Serial.println("4");
+      break;
+    case 56:
+      Serial.println("5");
+      break;
+    case 90:
+      Serial.println("6");
+      break;
+    case 66:
+      Serial.println("7");
+      break;
+    case 74:
+      Serial.println("8");
+      break;
+    case 82:
+      Serial.println("9");
+      break;
+    default:
+      Serial.print("UNKNOWN::SignalCode[byte]: ");
+      Serial.println(signalReceived);     
+  }
 }
