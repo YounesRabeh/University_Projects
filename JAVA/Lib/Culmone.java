@@ -1,5 +1,3 @@
-package Lib;
-
 import java.util.Random;
 
 /** The best Library in Camerino*/
