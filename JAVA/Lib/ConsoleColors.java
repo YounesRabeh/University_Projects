@@ -1,5 +1,6 @@
-package Lib;
-
+/**
+@Author: Younes Rabeh
+*/
 public class ConsoleColors {
     //System.out.println(Lib.ConsoleColors.RED + "RED COLORED" +
     //Lib.ConsoleColors.RESET + " NORMAL");
