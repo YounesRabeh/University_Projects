@@ -1,0 +1,27 @@
+/* styles.css */
+
+/* Style for regular buttons */
+.button {
+    -fx-background-color: #730FD6; /* Green background */
+    -fx-text-fill: white; /* White text color */
+    -fx-font-size: 50px; /* Font size */
+    -fx-padding: 10px 20px; /* Padding */
+    -fx-background-radius: 10px; /* Rounded corners */
+    -fx-border-color: #00000; /* Border color */
+    -fx-border-width: 1px; /* Border width */
+    -fx-border-radius: 10px; /* Border radius */
+    -fx-border-style: solid; /* Border style */
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 1, 0, 1, 1); /* 3D effect */
+}
+
+/* Style for buttons when hovered */
+.button:hover {
+    -fx-background-color: #630BBA; /* Darker green background */
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 1, 1, 1, 1); /* Adjusted box shadow */
+}
+
+/* Style for buttons when pressed */
+.button:pressed {
+    -fx-background-color: #4A088C; /* Even darker green background */
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 1, 0, 1, 1); /* No box shadow when pressed */
+}
